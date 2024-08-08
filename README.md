@@ -8,7 +8,10 @@
 - sign Up Form
 - form Validation
 - useRef HOOK
-
+- firebase setup
+- deployment to production
+- create sign up user account 
+0
 
 
 now we are setting up roiting
