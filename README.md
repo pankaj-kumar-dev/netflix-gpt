@@ -3,8 +3,12 @@
 - create react app
 - configured tailwind css 
 - Header css
+- Routing of app
 - Login Form
 - sign Up Form
+- form Validation
+- useRef HOOK
+
 
 
 now we are setting up roiting

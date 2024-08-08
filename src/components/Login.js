@@ -4,6 +4,14 @@ import Header from "./Header";
 const Login = () => {
   const [IsSignInForm, setIsSignInForm]= useState(true);
 
+
+// 
+
+  const handleButtonClick = () => {
+    // validate form data
+
+  }
+
   const toggleSignInForm = () => {
     setIsSignInForm(!IsSignInForm);
   };
@@ -42,7 +50,7 @@ const Login = () => {
           className="p-4 my-2 w-full bg-gray-700"
         />
 
-        <button className="p-4 my-6 bg-red-700 w-full rounded-lg">
+        <button className="p-4 my-6 bg-red-700 w-full rounded-lg" onClick={handleButtonClick}>
           {IsSignInForm ? "Sign In" : "Sign Up"}
         </button>
         <p className="py-4 cursor-pointer" onClick={toggleSignInForm}>
