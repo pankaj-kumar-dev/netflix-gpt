@@ -11,7 +11,14 @@
 - firebase setup
 - deployment to production
 - create sign up user account 
-0
+- implement signi n user API
+-  CREATED redux store with userSLICE
+- Implemented sign out 
+- update profile
+- 
+- 
+- SETTING OUR REDUX STORE
+
 
 
 now we are setting up roiting
