@@ -12,9 +12,10 @@
 - deployment to production
 - create sign up user account 
 - implement signi n user API
--  CREATED redux store with userSLICE
+- CREATED redux store with userSLICE
 - Implemented sign out 
 - update profile
+- fetch from TMDB API
 - 
 - 
 - SETTING OUR REDUX STORE

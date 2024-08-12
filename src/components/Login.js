@@ -33,40 +33,27 @@ const Login = () => {
         password.current.value
       )
         .then((userCredential) => {
-          const user = userCredential.user;
-          
-          updateProfile
-
-          (
-            user,
-             {
+          const user = userCredential.user;    
+          updateProfile(user, {
             displayName: name.current.value,
-            photoURL: "https://media.licdn.com/dms/image/D4D03AQEH0UsptqG9rQ/profile-displayphoto-shrink_400_400/0/1703921607546?e=1729123200&v=beta&t=Qag87Vu-zCGFbyRulhx6wF7-_QCYpE9bkr-iwocoGnM", 
-          }
-        )
+            photoURL: "https://avatars.githubusercontent.com/u/88724633?v=4",
+          })
             .then(() => {
-              const {uid, email, displayName, photoURL} = auth;
+              const { uid, email, displayName, photoURL } = auth.currentUser;
               dispatch(
                 addUser({
-                  uid :uid,
+                  uid: uid,
                   email: email,
-                  disaplayName: displayName,
-                  photoURL: photoURL
+                  displayName: displayName,
+                  photoURL: photoURL,
                 })
               );
-              
-
-              
               navigate("/browse");
             })
             .catch((error) => {
               setErrorMessage(error.message);
             });
-
-          console.log(user);
-          navigate("/browse");
-
-        })
+      })
         .catch((error) => {
           const errorCode = error.code;
           const errorMessage = error.message;
