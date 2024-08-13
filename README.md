@@ -15,8 +15,8 @@
 - CREATED redux store with userSLICE
 - Implemented sign out 
 - update profile
-- fetch from TMDB API
-- 
+- Bug-fix 1 = Sign up user displayName and profile picture update
+- Bug-fix 2 =  if the user is not logged in Redirect/ browse to login page and vice versa
 - 
 - SETTING OUR REDUX STORE
 
