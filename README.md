@@ -1,5 +1,4 @@
 # Netflix-gpt
-
 - create react app
 - configured tailwind css 
 - Header css
@@ -17,6 +16,18 @@
 - update profile
 - Bug-fix 1 = Sign up user displayName and profile picture update
 - Bug-fix 2 =  if the user is not logged in Redirect/ browse to login page and vice versa
+- Unsubscribed to onAuthStatechanged callback
+- ADD hardcoded values to the constant file.
+- Register for TMDB API & create an app & get access token 
+- Get data from TMDB NOW PLAYING MOVIES LIST API 
+- custom hook for nowPlayingMovies
+- create movie slice
+- updated store with movie data
+- planning for main and secondary container
+- fetch data for trailer video
+- update store with trailer video data 
+- embedded the youtube video make it autoplay and mute
+- added tailwind classes to make container look awesome
 - 
 - SETTING OUR REDUX STORE
 
