@@ -28,7 +28,7 @@
 - update store with trailer video data 
 - embedded the youtube video make it autoplay and mute
 - added tailwind classes to make container look awesome
-- 
+- Secondary container
 - SETTING OUR REDUX STORE
 
 
