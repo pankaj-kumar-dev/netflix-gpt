@@ -8,7 +8,7 @@ const MainContainer = () => {
   if (!movies || movies.length === 0) return null; // Return nothing if movies is undefined or empty
 
   const mainMovie = movies[0];
-  console.log(mainMovie);
+ 
 
   const { original_title, overview, id} = mainMovie; // Fallback to an empty object if mainMovie is undefined
 

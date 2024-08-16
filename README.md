@@ -27,9 +27,15 @@
 - fetch data for trailer video
 - update store with trailer video data 
 - embedded the youtube video make it autoplay and mute
-- added tailwind classes to make container look awesome
-- Secondary container
-- SETTING OUR REDUX STORE
+- added tailwind classes to make Main container look awesome
+- build Secondary container   component
+- Build Movie List 
+- Build Movie CARD
+- TMDB ImAGE CDN URL 
+- Made the browse page amazing with tailwind css
+- usePopularMovies Custom Hooks
+- GPT search feature
+- 
 
 
 
