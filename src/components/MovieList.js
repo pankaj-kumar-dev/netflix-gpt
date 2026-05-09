@@ -5,22 +5,21 @@ const MovieList = ({ title, movies }) => {
   const listRef = useRef(null);
 
   const scrollRight = () => {
-    if (listRef.current) {
-      listRef.current.scrollBy({ left: 300, behavior: "smooth" });
-    }
+    listRef.current?.scrollBy({ left: 300, behavior: "smooth" });
   };
 
-  if (!movies || movies.length === 0) {
-    return <div>No movies available.</div>;
-  }
+  if (!movies || movies.length === 0) return null;
 
   return (
     <div className="px-6 relative">
       <h1 className="text-3xl py-4 text-white">{title}</h1>
-      <div className="flex overflow-x-auto p-6 scroll-container" ref={listRef}>
+      <div
+        className="flex overflow-x-auto p-6 scroll-container"
+        ref={listRef}
+      >
         <div className="flex">
           {movies.map((movie) => (
-            <MovieCard key={movie.id} posterPath={movie.poster_path} />
+            <MovieCard key={movie.id} movie={movie} />
           ))}
         </div>
       </div>

@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String          @id @default(cuid())
+  firebaseUid String          @unique
+  email       String          @unique
+  displayName String?
+  photoURL    String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  searches    SearchHistory[]
+  watchHistory WatchHistory[]
+}
+
+model SearchHistory {
+  id         String   @id @default(cuid())
+  userId     String
+  query      String
+  movieNames String[]
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model WatchHistory {
+  id         String   @id @default(cuid())
+  userId     String
+  movieId    Int
+  title      String
+  posterPath String?
+  watchedAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, movieId])
+  @@index([userId])
+}
