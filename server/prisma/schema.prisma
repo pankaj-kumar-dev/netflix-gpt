@@ -7,16 +7,24 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum SubscriptionTier {
+  FREE
+  PRO
+}
+
 model User {
-  id           String          @id @default(cuid())
-  firebaseUid  String          @unique
-  email        String          @unique
-  displayName  String?
-  photoURL     String?
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
-  searches     SearchHistory[]
-  watchHistory WatchHistory[]
+  id                 String           @id @default(cuid())
+  firebaseUid        String           @unique
+  email              String           @unique
+  displayName        String?
+  photoURL           String?
+  subscriptionTier   SubscriptionTier @default(FREE)
+  stripeCustomerId   String?          @unique
+  subscriptionEndsAt DateTime?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  searches           SearchHistory[]
+  watchHistory       WatchHistory[]
 }
 
 model SearchHistory {
@@ -45,8 +53,7 @@ model WatchHistory {
 }
 
 // Stores OpenAI text-embedding-3-small vectors (1536 dims) as JSON float[]
-// Phase 5 upgrade path: change embedding to Unsupported("vector(1536)") with pgvector
-// and move similarity computation into DB for O(log n) instead of O(n)
+// Phase 5+ upgrade: Unsupported("vector(1536)") with pgvector for DB-side similarity
 model MovieEmbedding {
   id        String   @id @default(cuid())
   movieId   Int      @unique

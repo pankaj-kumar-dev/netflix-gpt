@@ -2,15 +2,34 @@ import React, { useState } from "react";
 import GptMovieSuggestion from "./GptMovieSuggestion";
 import GptSearchBar from "./GptSearchBar";
 import MovieList from "./MovieList";
+import UpgradeModal from "./UpgradeModal";
 import { BG_URL } from "../utils/constants";
 import useSearchHistory from "../Hooks/useSearchHistory";
 import useEmbeddingSearch from "../Hooks/useEmbeddingSearch";
+import useSubscription from "../Hooks/useSubscription";
 
 const GptSearchPage = () => {
   const [query, setQuery] = useState("");
-  const [mode, setMode] = useState("gpt"); // "gpt" | "semantic"
+  const [mode, setMode] = useState("gpt");
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
   const searchHistory = useSearchHistory();
-  const { search: semanticSearch, results: semanticResults, isLoading: semanticLoading, error: semanticError, message: semanticMessage } = useEmbeddingSearch();
+  const { isPro } = useSubscription();
+  const {
+    search: semanticSearch,
+    results: semanticResults,
+    isLoading: semanticLoading,
+    error: semanticError,
+    message: semanticMessage,
+  } = useEmbeddingSearch();
+
+  const handleModeSwitch = (newMode) => {
+    if (newMode === "semantic" && !isPro) {
+      setShowUpgradeModal(true);
+      return;
+    }
+    setMode(newMode);
+  };
 
   const handleSemanticSearch = () => {
     if (query.trim()) semanticSearch(query);
@@ -22,12 +41,16 @@ const GptSearchPage = () => {
         <img src={BG_URL} alt="background" className="w-full h-full object-cover" />
       </div>
 
+      {showUpgradeModal && (
+        <UpgradeModal onClose={() => setShowUpgradeModal(false)} />
+      )}
+
       <div className="relative z-10">
         {/* Mode toggle */}
         <div className="flex justify-center pt-[18%] mb-[-14%]">
           <div className="flex rounded-lg overflow-hidden border border-gray-600">
             <button
-              onClick={() => setMode("gpt")}
+              onClick={() => handleModeSwitch("gpt")}
               className={`px-5 py-2 text-sm font-semibold transition-colors ${
                 mode === "gpt"
                   ? "bg-red-700 text-white"
@@ -37,19 +60,23 @@ const GptSearchPage = () => {
               AI Search
             </button>
             <button
-              onClick={() => setMode("semantic")}
-              className={`px-5 py-2 text-sm font-semibold transition-colors ${
+              onClick={() => handleModeSwitch("semantic")}
+              className={`px-5 py-2 text-sm font-semibold transition-colors flex items-center gap-1 ${
                 mode === "semantic"
                   ? "bg-purple-700 text-white"
                   : "bg-gray-900 text-gray-400 hover:bg-gray-800"
               }`}
             >
               Semantic Search ✦
+              {!isPro && (
+                <span className="text-xs bg-purple-800 text-purple-200 px-1.5 py-0.5 rounded ml-1">
+                  PRO
+                </span>
+              )}
             </button>
           </div>
         </div>
 
-        {/* Search bar — shared for both modes */}
         <GptSearchBar
           query={query}
           onQueryChange={setQuery}
@@ -96,7 +123,7 @@ const GptSearchPage = () => {
                 </p>
                 <MovieList title="Semantic Picks" movies={semanticResults} />
                 <p className="text-gray-600 text-xs mt-2 text-center">
-                  Ranked by meaning similarity, not keywords
+                  Ranked by meaning similarity · not keywords
                 </p>
               </>
             )}
