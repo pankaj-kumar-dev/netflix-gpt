@@ -1,17 +1,17 @@
-const OpenAI = require("openai");
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-// text-embedding-3-small: 1536 dimensions, cheap, fast, good quality
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const embeddingModel = genAI.getGenerativeModel({ model: "gemini-embedding-001" });
+
+// Gemini text-embedding-004: 768 dimensions (vs OpenAI's 1536)
+// Free tier, no quota issues
 const generateEmbedding = async (text) => {
-  const response = await openai.embeddings.create({
-    model: "text-embedding-3-small",
-    input: text.slice(0, 8000), // model token limit safety
-  });
-  return response.data[0].embedding; // float[]
+  const result = await embeddingModel.embedContent(text.slice(0, 8000));
+  return result.embedding.values; // float[]
 };
 
 // Cosine similarity: measures angle between two vectors (range: -1 to 1)
-// 1.0 = identical meaning, 0 = unrelated, -1 = opposite meaning
+// 1.0 = identical meaning, 0 = unrelated
 const cosineSimilarity = (a, b) => {
   let dot = 0, magA = 0, magB = 0;
   for (let i = 0; i < a.length; i++) {
@@ -23,7 +23,6 @@ const cosineSimilarity = (a, b) => {
   return dot / (Math.sqrt(magA) * Math.sqrt(magB));
 };
 
-// Given a query embedding, rank corpus items by similarity and return top N
 const findTopN = (queryEmbedding, corpus, n = 5) => {
   return corpus
     .map((item) => ({
@@ -34,8 +33,6 @@ const findTopN = (queryEmbedding, corpus, n = 5) => {
     .slice(0, n);
 };
 
-// Build a rich text representation of a movie for embedding
-// More context = better semantic placement in embedding space
 const buildMovieText = (movie) => {
   const parts = [
     movie.title,
