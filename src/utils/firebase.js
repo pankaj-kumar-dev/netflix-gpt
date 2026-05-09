@@ -1,18 +1,16 @@
-import { getAuth, signOut } from "firebase/auth";
 import { initializeApp } from "firebase/app";
-
+import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyATpgyBauGpzXLL57SuRyn8usMiF37tM-8",
-  authDomain: "netflixgpt-kithogun.firebaseapp.com",
-  projectId: "netflixgpt-kithogun",
-  storageBucket: "netflixgpt-kithogun.appspot.com",
-  messagingSenderId: "38096141522",
-  appId: "1:38096141522:web:0ced6b764a9ce1b29f010b",
-  measurementId: "G-69F8XDGQMJ",
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
 };
 
 const app = initializeApp(firebaseConfig);
 
-export const auth = getAuth(); 
-
+export const auth = getAuth(app);

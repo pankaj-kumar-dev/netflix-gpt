@@ -1,24 +1,26 @@
-import { useDispatch } from "react-redux";
-import { API_OPTIONS } from "../utils/constants";
+import { useDispatch, useSelector } from "react-redux";
 import { addUpcomingMovies } from "../utils/movieSlice";
 import { useEffect } from "react";
+import { tmdb } from "../services/tmdb";
 
 const useUpcomingMovies = () => {
   const dispatch = useDispatch();
-
-  const getUpcomingMovies = async () => {
-    const data = await fetch(
-      "https://api.themoviedb.org/3/movie/upcoming",
-      API_OPTIONS
-    );
-    const json = await data.json();
-    dispatch(addUpcomingMovies(json.results));
-  };
+  const upcomingMovies = useSelector((store) => store.movies.upcomingMovies);
 
   useEffect(() => {
-    getUpcomingMovies();
-  }, []);
-  return;
+    if (upcomingMovies) return;
+
+    const fetchMovies = async () => {
+      try {
+        const data = await tmdb.getUpcoming();
+        dispatch(addUpcomingMovies(data.results));
+      } catch (error) {
+        console.error("Failed to fetch upcoming movies:", error);
+      }
+    };
+
+    fetchMovies();
+  }, [dispatch, upcomingMovies]);
 };
 
 export default useUpcomingMovies;

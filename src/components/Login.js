@@ -1,136 +1,121 @@
 import React, { useRef, useState } from "react";
-import Header from "./Header";
-import { checkValidData } from "../utils/validate.js";
+import { Navigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  updateProfile,
 } from "firebase/auth";
-import { auth } from "../utils/firebase.js";
-import { updateProfile } from "firebase/auth";
-import { useDispatch } from "react-redux";
-import { addUser } from "../utils/userSlice.js";
-import { BG_URL, User_Avatar } from "../utils/constants.js";
+import { auth } from "../utils/firebase";
+import { addUser } from "../utils/userSlice";
+import { checkValidData } from "../utils/validate";
+import { BG_URL, User_Avatar } from "../utils/constants";
+import Header from "./Header";
 
 const Login = () => {
-  const [IsSignInForm, setIsSignInForm] = useState(true);
+  const [isSignInForm, setIsSignInForm] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
-  const name = useRef(null);
-  const email = useRef(null);
-  const password = useRef(null);
+  const { currentUser } = useSelector((store) => store.user);
 
-  const handleButtonClick = () => {
-    const message = checkValidData(email.current.value, password.current.value);
-    setErrorMessage(message);
-    if (message) return;
+  const nameRef = useRef(null);
+  const emailRef = useRef(null);
+  const passwordRef = useRef(null);
 
-    if (!IsSignInForm) {
-      //sign UP logic
-      createUserWithEmailAndPassword(
-        auth,
-        email.current.value,
-        password.current.value
-      )
-        .then((userCredential) => {
-          const user = userCredential.user;    
-          updateProfile(user, {
-            displayName: name.current.value,
-            photoURL: User_Avatar,
-          })
-            .then(() => {
-              const { uid, email, displayName, photoURL } = auth.currentUser;
-              dispatch(
-                addUser({
-                  uid: uid,
-                  email: email,
-                  displayName: displayName,
-                  photoURL: photoURL,
-                })
-              );
-            })
-            .catch((error) => {
-              setErrorMessage(error.message);
-            });
-      })
-        .catch((error) => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          setErrorMessage(errorCode + "-" + errorMessage);
-        });
-    } else {
-      //sign IN logic
-      signInWithEmailAndPassword(
-        auth,
-        email.current.value,
-        password.current.value
-      )
-        .then((userCredential) => {
-          // Signed in
-          const user = userCredential.user;
+  // Already logged in — AuthListener will navigate, but this is a safety net
+  if (currentUser) return <Navigate to="/browse" replace />;
 
-        })
-        .catch((error) => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          setErrorMessage(errorCode + "-" + errorMessage);
-        });
+  const handleSubmit = async () => {
+    const validationError = checkValidData(
+      emailRef.current.value,
+      passwordRef.current.value
+    );
+    if (validationError) {
+      setErrorMessage(validationError);
+      return;
     }
-  };
 
-  const toggleSignInForm = () => {
-    setIsSignInForm(!IsSignInForm);
+    setErrorMessage(null);
+    setIsLoading(true);
+
+    try {
+      if (!isSignInForm) {
+        const { user } = await createUserWithEmailAndPassword(
+          auth,
+          emailRef.current.value,
+          passwordRef.current.value
+        );
+        await updateProfile(user, {
+          displayName: nameRef.current.value,
+          photoURL: User_Avatar,
+        });
+        const { uid, email, displayName, photoURL } = auth.currentUser;
+        dispatch(addUser({ uid, email, displayName, photoURL }));
+        // AuthListener's onAuthStateChanged fires and navigates to /browse
+      } else {
+        await signInWithEmailAndPassword(
+          auth,
+          emailRef.current.value,
+          passwordRef.current.value
+        );
+        // AuthListener's onAuthStateChanged fires and navigates to /browse
+      }
+    } catch (error) {
+      setErrorMessage(error.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div>
       <Header />
       <div className="absolute">
-        <img
-          alt="bg-image"
-          src={BG_URL}
-        />
+        <img alt="background" src={BG_URL} />
       </div>
-
       <form
         onSubmit={(e) => e.preventDefault()}
-        className="w-3/12 absolute p-12 bg-black  w-3/12 my-36 mx-auto right-0 left-0 text-white rounded-lg bg-opacity-80"
+        className="w-3/12 absolute p-12 bg-black my-36 mx-auto right-0 left-0 text-white rounded-lg bg-opacity-80"
       >
         <h1 className="font-bold text-3xl py-4">
-          {IsSignInForm ? "Sign In" : "Sign Up"}
+          {isSignInForm ? "Sign In" : "Sign Up"}
         </h1>
-        {!IsSignInForm && (
+        {!isSignInForm && (
           <input
-            ref={name}
+            ref={nameRef}
             type="text"
             placeholder="Full Name"
-            className="p-4 my-2 w-full bg-gray-700"
+            className="p-4 my-2 w-full bg-gray-700 rounded"
           />
         )}
-
         <input
-          ref={email}
-          type="text"
-          placeholder="Email-address"
-          className="p-4 my-2 w-full bg-gray-700"
+          ref={emailRef}
+          type="email"
+          placeholder="Email address"
+          className="p-4 my-2 w-full bg-gray-700 rounded"
         />
-
         <input
-          ref={password}
+          ref={passwordRef}
           type="password"
           placeholder="Password"
-          className="p-4 my-2 w-full bg-gray-700"
+          className="p-4 my-2 w-full bg-gray-700 rounded"
         />
-
-        <p className="text-red-500 font-bold text-lg py-2">{errorMessage}</p>
-
+        {errorMessage && (
+          <p className="text-red-500 font-bold text-sm py-2">{errorMessage}</p>
+        )}
         <button
-          className="p-4 my-6 bg-red-700 w-full rounded-lg"
-          onClick={handleButtonClick}
+          className="p-4 my-6 bg-red-700 w-full rounded-lg disabled:opacity-60 hover:bg-red-600 transition-colors"
+          onClick={handleSubmit}
+          disabled={isLoading}
         >
-          {IsSignInForm ? "Sign In" : "Sign Up"}
+          {isLoading ? "Please wait..." : isSignInForm ? "Sign In" : "Sign Up"}
         </button>
-        <p className="py-4 cursor-pointer" onClick={toggleSignInForm}>
-          {IsSignInForm
+        <p
+          className="py-4 cursor-pointer hover:underline"
+          onClick={() => setIsSignInForm(!isSignInForm)}
+        >
+          {isSignInForm
             ? "New to Netflix? Sign Up Now"
             : "Already a user? Sign In Now"}
         </p>

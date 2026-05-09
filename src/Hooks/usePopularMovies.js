@@ -1,24 +1,26 @@
-import { useDispatch } from "react-redux";
-import { API_OPTIONS } from "../utils/constants";
+import { useDispatch, useSelector } from "react-redux";
 import { addPopularMovies } from "../utils/movieSlice";
 import { useEffect } from "react";
+import { tmdb } from "../services/tmdb";
 
 const usePopularMovies = () => {
   const dispatch = useDispatch();
-
-  const getPopularMovies = async () => {
-    const data = await fetch(
-      "https://api.themoviedb.org/3/movie/popular",
-      API_OPTIONS
-    );
-    const json = await data.json();
-    dispatch(addPopularMovies(json.results));
-  };
+  const popularMovies = useSelector((store) => store.movies.popularMovies);
 
   useEffect(() => {
-    getPopularMovies();
-  }, []);
-  return;
+    if (popularMovies) return;
+
+    const fetchMovies = async () => {
+      try {
+        const data = await tmdb.getPopular();
+        dispatch(addPopularMovies(data.results));
+      } catch (error) {
+        console.error("Failed to fetch popular movies:", error);
+      }
+    };
+
+    fetchMovies();
+  }, [dispatch, popularMovies]);
 };
 
 export default usePopularMovies;

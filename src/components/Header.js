@@ -1,50 +1,26 @@
-import React, { useEffect } from "react";
-import { auth } from "../utils/firebase";
+import React from "react";
+import { signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { signOut, onAuthStateChanged } from "firebase/auth";
 import { useDispatch, useSelector } from "react-redux";
-import { addUser, removeUser } from "../utils/userSlice";
+import { auth } from "../utils/firebase";
 import { LOGO, SUPPORTED_LANGUAGES } from "../utils/constants";
 import { toggleGptSearchView } from "../utils/gptSlice";
-import { changeLanguage } from "../utils/configSlice"; // Make sure this is correctly imported
+import { changeLanguage } from "../utils/configSlice";
 
 const Header = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const user = useSelector((store) => store.user);
+  const user = useSelector((store) => store.user.currentUser);
+  const showGptSearch = useSelector((store) => store.gpt.showGptSearch);
 
-  const handleSignOut = () => {
-    signOut(auth)
-      .then(() => {
-        // Handle successful sign-out if needed
-      })
-      .catch((error) => {
-        console.error("Sign out error:", error);
-        navigate("/error");
-      });
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      navigate("/");
+    } catch (error) {
+      console.error("Sign out error:", error);
+    }
   };
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        const { uid, email, displayName, photoURL } = user;
-        dispatch(
-          addUser({
-            uid,
-            email,
-            displayName,
-            photoURL,
-          })
-        );
-        navigate("/browse");
-      } else {
-        dispatch(removeUser());
-        navigate("/");
-      }
-    });
-
-    return () => unsubscribe(); // Clean up the subscription on unmount
-  }, [dispatch, navigate]);
 
   const handleLanguageChange = (e) => {
     dispatch(changeLanguage(e.target.value));
@@ -56,11 +32,11 @@ const Header = () => {
 
   return (
     <div className="absolute px-4 py-1 bg-gradient-to-b from-black z-10 flex justify-between w-full">
-      <img className="w-44" src={LOGO} alt="logo" />
+      <img className="w-44" src={LOGO} alt="Netflix logo" />
       {user && (
         <div className="flex items-center space-x-4">
           <select
-            className="p-2 m-2 bg-gray-900 text-white"
+            className="p-2 m-2 bg-gray-900 text-white rounded"
             onChange={handleLanguageChange}
           >
             {SUPPORTED_LANGUAGES.map((lang) => (
@@ -70,13 +46,22 @@ const Header = () => {
             ))}
           </select>
           <button
-            className="py-2 px-4 m-2 bg-purple-900 rounded-lg"
+            className="py-2 px-4 m-2 bg-purple-900 rounded-lg text-white hover:bg-purple-800 transition-colors"
             onClick={handleGptSearchClick}
           >
-            GPT SEARCH
+            {showGptSearch ? "Browse" : "GPT Search"}
           </button>
-          <img className="w-14 h-14" alt="usericon" src={user.photoURL} />
-          <button onClick={handleSignOut} className="font-bold text-white">
+          {user.photoURL && (
+            <img
+              className="w-10 h-10 rounded"
+              alt="user avatar"
+              src={user.photoURL}
+            />
+          )}
+          <button
+            onClick={handleSignOut}
+            className="font-bold text-white hover:text-gray-300 transition-colors"
+          >
             Sign Out
           </button>
         </div>
