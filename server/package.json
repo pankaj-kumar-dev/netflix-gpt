@@ -1,21 +1,28 @@
 {
   "name": "netflix-gpt-server",
   "version": "1.0.0",
-  "description": "Express backend for Netflix GPT — AI proxy, TMDB proxy",
+  "description": "Express backend for Netflix GPT",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "db:migrate": "prisma migrate dev",
+    "db:generate": "prisma generate",
+    "db:studio": "prisma studio"
   },
   "dependencies": {
+    "@prisma/client": "^5.17.0",
     "axios": "^1.7.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "express-rate-limit": "^7.3.1",
-    "openai": "^4.55.4"
+    "firebase-admin": "^12.3.0",
+    "openai": "^4.55.4",
+    "redis": "^4.7.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.4"
+    "nodemon": "^3.1.4",
+    "prisma": "^5.17.0"
   }
 }

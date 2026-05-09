@@ -9,14 +9,14 @@ import {
   setGptError,
 } from "../utils/gptSlice";
 
-const GptSearchBar = ({ query, onQueryChange }) => {
+const GptSearchBar = ({ query, onQueryChange, mode = "gpt", onSemanticSearch }) => {
   const dispatch = useDispatch();
   const langKey = useSelector((store) => store.config.lang);
-  const isLoading = useSelector((store) => store.gpt.isLoading);
+  const gptLoading = useSelector((store) => store.gpt.isLoading);
 
-  const handleSearch = async () => {
+  const handleGptSearch = async () => {
     const q = query.trim();
-    if (!q || isLoading) return;
+    if (!q || gptLoading) return;
 
     dispatch(setSearchQuery(q));
     dispatch(setGptLoading(true));
@@ -24,7 +24,6 @@ const GptSearchBar = ({ query, onQueryChange }) => {
 
     try {
       const token = await auth.currentUser?.getIdToken();
-
       const response = await fetch("/api/ai/search", {
         method: "POST",
         headers: {
@@ -48,6 +47,14 @@ const GptSearchBar = ({ query, onQueryChange }) => {
     }
   };
 
+  const handleSearch = () => {
+    if (mode === "semantic") {
+      onSemanticSearch?.();
+    } else {
+      handleGptSearch();
+    }
+  };
+
   const handleKeyDown = (e) => {
     if (e.key === "Enter") handleSearch();
   };
@@ -63,16 +70,24 @@ const GptSearchBar = ({ query, onQueryChange }) => {
           onChange={(e) => onQueryChange(e.target.value)}
           type="text"
           className="p-4 m-4 col-span-9 text-black rounded"
-          placeholder={lang[langKey].gptSearchPlaceholder}
+          placeholder={
+            mode === "semantic"
+              ? "Movies about redemption, space exploration, found family..."
+              : lang[langKey].gptSearchPlaceholder
+          }
           onKeyDown={handleKeyDown}
         />
         <button
           type="button"
-          className="col-span-3 m-4 py-2 px-4 bg-red-700 text-white rounded disabled:opacity-50 hover:bg-red-600 transition-colors"
+          className={`col-span-3 m-4 py-2 px-4 text-white rounded disabled:opacity-50 transition-colors ${
+            mode === "semantic"
+              ? "bg-purple-700 hover:bg-purple-600"
+              : "bg-red-700 hover:bg-red-600"
+          }`}
           onClick={handleSearch}
-          disabled={isLoading}
+          disabled={gptLoading}
         >
-          {isLoading ? "..." : lang[langKey].search}
+          {gptLoading ? "..." : lang[langKey].search}
         </button>
       </form>
     </div>

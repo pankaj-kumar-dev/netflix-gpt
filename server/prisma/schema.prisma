@@ -8,14 +8,14 @@ datasource db {
 }
 
 model User {
-  id          String          @id @default(cuid())
-  firebaseUid String          @unique
-  email       String          @unique
-  displayName String?
-  photoURL    String?
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
-  searches    SearchHistory[]
+  id           String          @id @default(cuid())
+  firebaseUid  String          @unique
+  email        String          @unique
+  displayName  String?
+  photoURL     String?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  searches     SearchHistory[]
   watchHistory WatchHistory[]
 }
 
@@ -42,4 +42,19 @@ model WatchHistory {
 
   @@unique([userId, movieId])
   @@index([userId])
+}
+
+// Stores OpenAI text-embedding-3-small vectors (1536 dims) as JSON float[]
+// Phase 5 upgrade path: change embedding to Unsupported("vector(1536)") with pgvector
+// and move similarity computation into DB for O(log n) instead of O(n)
+model MovieEmbedding {
+  id        String   @id @default(cuid())
+  movieId   Int      @unique
+  title     String
+  overview  String?
+  genres    String[]
+  embedding Json
+  createdAt DateTime @default(now())
+
+  @@index([movieId])
 }
